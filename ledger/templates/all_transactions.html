@@ -1,0 +1,47 @@
+{% extends 'base.html' %}
+{% block title %}Transactions{% endblock title %}
+{% block body %}
+<div class="my-3 container">
+    <div class="d-flex">
+        <a href="#" onclick="window.history.back();" class="btn btn-sm btn-primary mb-3" id='backBtn'> &larr; Back</a>
+        <h4 class='ms-5'>All Transactions</h4>
+    </div>
+    
+    <div class="table-responsive mt-3">
+        <h5>Previous Transactions</h5>
+    <table id="table_id" class="table-light table table-striped table-bordered w-100">
+        <thead>
+            <tr>
+                <th style='min-width:100px'>Date</th>
+                <th>Staff Name</th>
+                <th>Advance</th>
+                <th>Grand Balance</th>
+                <th style='min-width:150px'>Remark</th>
+                <th>Created On</th>
+            </tr>
+        </thead>
+        <tbody id='tBody'>
+            {% for transaction in transactions %}
+            <tr>
+                <td>{{transaction.date|date:"d-m-Y"}}</td>
+                <td>{{transaction.staff.name}}</td>
+                <td>{{transaction.advance}}</td>
+                <td>{{transaction.grand_balance}}</td>
+                <td>{{transaction.remark}}</td>
+                <td>{{transaction.created_on}}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    </div>
+</div>
+<style>
+    td a {
+        width: 100%;
+        display: block;
+    }
+    td a:hover {
+        font-weight:bold;
+    }
+</style>
+{% endblock body %} 

@@ -1,0 +1,81 @@
+<div style='position:sticky; top:0; z-index:100'> 
+  <nav class="navbar navbar-expand-lg navbar-dark bg-dark" id='mynavbar'>
+    <div class="container-fluid text-center">
+      <a class="navbar-brand" href="/">Imprest </a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+          <li class="nav-item">
+            <a class="nav-link active" href="/ledger/all_transactions">All Transactions</a>
+          </li> 
+          <li class="nav-item">
+            {% comment %} <a class="nav-link active" href="/help">Help</a> {% endcomment %}
+          </li> 
+          
+        </ul> 
+        {% if user.is_authenticated %} 
+        <div class="btn-group">
+          <button id="userMenu" type="button" class="btn btn-primary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false" value="">
+            {{request.user.first_name}}
+          </button>
+          <ul class="dropdown-menu dropdown-menu-lg-end">  
+            <li>
+              <a class="dropdown-item" href="/change-password">Change Password</a>
+            </li>
+            <li>
+              <a class="dropdown-item" href="/logout">Logout</a>
+            </li>
+          </ul>
+        </div> 
+        {% else %} 
+        {% comment %} <a href="/admin" class="btn btn-primary">Login</a>  {% endcomment %}
+        <a href="/admin" class="btn btn-primary">Admin Pannel</a> 
+        {% endif %}
+      </div>
+    </div>
+  </nav>
+  <div class="loading-strip d-none" id='loadingStrip'></div>
+  <div class="htmx-alert" id="alert"></div>
+</div> 
+<script>
+  window.addEventListener('beforeunload', function() {
+    loadingStrip.classList.remove('d-none');
+    setTimeout(function() {
+        loadingStrip.classList.add('d-none');
+    }, 5000);
+  });
+</script>
+<style>
+  .navbar-nav li:hover>ul.dropdown-menu {
+    display: block;
+  }
+  .loading-strip {
+    height: 3px; 
+    background-color: #FF0000;
+    width: 100%;
+    animation: loading-animation 2s infinite linear;
+  }
+
+  @keyframes loading-animation {
+    0% {
+      transform: scaleX(0);
+    }
+    50% {
+      transform: scaleX(1);
+    }
+    100% {
+      transform: scaleX(0);
+    }
+  }
+  .htmx-indicator{
+      display:none;
+  }
+  .htmx-request .htmx-indicator{
+      display:inline;
+  }
+  .htmx-request.htmx-indicator{
+      display:inline;
+  }
+</style>

@@ -1,0 +1,54 @@
+{% extends 'base.html' %}
+{% block title %}Staff{% endblock title %}
+{% block body %}
+<div class="my-3 container-fluid">
+    <h4>{{staff.0.name}} balance: {{staff.0.balance}} Rs</h4>
+    <h4>All staffs</h4>
+    {% comment %} <a href="/staff/add_staff/" class="btn btn-sm btn-outline-primary mb-2">Add Staff</a> {% endcomment %}
+    {% comment %} <a href="/staff/?trash=True" class="btn btn-sm btn-outline-primary mb-2">Trashed Staff</a> {% endcomment %}
+    <table id="table_id" class="table-light table table-striped table-bordered w-100">
+        <thead>
+            <tr>
+                <th>SN</th>
+                <th>Emp No</th>
+                <th style='position:sticky; left:0'>Name</th>
+                <th>Balance</th>
+                <th>Designation</th>
+                <th>Section</th>
+                <th>Phone</th>
+                <th>Remark</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for person in staff %}
+            <tr>
+                <td>{{ forloop.counter }}</td>
+                <td>{{person.emp_no}}</td>
+                <td style='position:sticky; left:0'><a href="/ledger/staff_transactions?staff_id={{person.id}}">{{person.name}}</a></td>
+                <td>{{person.balance}}</td>
+                <td>{{person.designation}}</td>
+                 <td>{{person.section}}</td>
+                <td>{{person.phone}}</td>
+                <td>{{person.remark}}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <!-- for data table -->
+    <script src="https://code.jquery.com/jquery-3.5.1.js"> </script>
+    <script src="https://cdn.datatables.net/1.11.3/js/jquery.dataTables.min.js"> </script>
+    <link href="https://cdn.datatables.net/1.11.3/css/jquery.dataTables.min.css" rel="stylesheet">
+    <script>
+        $(document).ready(function () {
+            $('#table_id').DataTable({
+                "scrollX": true,
+                // "order": [
+                //     [1, "desc"]
+                // ],
+                "pageLength": 25
+            });
+        });
+    </script>
+</div>
+
+{% endblock body %}

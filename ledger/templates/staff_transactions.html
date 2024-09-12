@@ -1,0 +1,222 @@
+{% extends 'base.html' %}
+{% block title %}Transactions{% endblock title %}
+{% block body %}
+<div class="my-3 container">
+    <div class="d-flex">
+        <a href="#" onclick="window.history.back();" class="btn btn-sm btn-primary mb-3" id='backBtn'> &larr; Back</a>
+        <h4 class='ms-5'>Transactions</h4>
+    </div>
+    
+    <div class="table-responsive row">
+        {% comment %} <div class='col-md-2'>
+            <img src="/media/{{stu.photo}}/" onerror="this.src='/static/sample_photo.png'" alt="student photo" width='100px'>
+        </div> {% endcomment %}
+        <div class="col-md-6">
+            <table class='table'>
+                <tr>
+                    <th> Employee Number: </th>
+                    <td>{{staff.emp_no}}</td>
+                </tr>
+                <tr>
+                    <th> Employee Name: </th>
+                    <td>{{staff.name}}</td>
+                </tr>
+                <tr>
+                    <th> Mobile No: </th>
+                    <td><a href="tel:{{staff.phone}}">{{staff.phone}}</a></td>
+                </tr>
+                <tr>
+                    <th> Section </th>
+                    <td>{{staff.section}}</td>
+                </tr>
+                <tr>
+                    <th> Balance </th>
+                    <td>{{staff.balance}}</td>
+                </tr>
+                <tr>
+                    <th> Remark </th>
+                    <td>{{staff.remark}}</td>
+                </tr>
+            </table>
+        </div>
+        
+    </div>
+    <div class='new-installment'>
+        <div class='border rounded p-3 w-100'>
+            <h5>New Transaction</h5>
+            <div class="d-flex justify-content-between">
+                <button class="btn btn-outline-success btn-sm" onclick="showModal('advance')">Advance</button>
+                <button class="btn btn-outline-danger btn-sm" onclick="showModal('bill')">Bill</button>
+            </div>
+        </div>
+        <script>
+            function showModal(value){
+                let transaction=document.getElementById('transaction')
+                let submitBtn=document.getElementById('submitBtn')
+                let modalHeading=document.getElementById('modalHeading')
+                if (value==='advance'){
+                    transaction.value='advance'
+                    submitBtn.classList.remove('btn-danger')
+                    submitBtn.classList.add('btn-success')
+                    bill_input.classList.add('d-none')
+                    bill_no.value='0'
+                    modalHeading.innerHTML='New Transaction - Advance'
+                }else{
+                    transaction.value='bill'
+                    submitBtn.classList.remove('btn-success')
+                    submitBtn.classList.add('btn-danger')
+                    bill_input.classList.remove('d-none')
+                    modalHeading.innerHTML='New Transaction - Bill'
+                }
+                document.getElementById('modalBtn').click()
+            }
+            document.body.addEventListener('htmx:afterRequest', function(event) {
+                modalCloseBtn.click();
+                modalForm.reset();
+            });
+        </script>
+    </div>
+    <!-- Modal Button-->
+        <button type="button" id='modalBtn' class="btn btn-outline-primary btn-sm" hidden data-bs-toggle="modal" data-bs-target="#exampleModal">
+            New Transaction
+        </button>
+    <!-- Modal -->
+    <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="modalHeading" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modalHeading">New Transaction</h5>
+                    <button type="button" id='modalCloseBtn' class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form action='/ledger/save_transaction/?staff_id={{staff.id}}' method='post' id='modalForm'>
+                        {% csrf_token %}
+                        <div class='mb-3' id='bill_input'>
+                            <label for='bill_no' class='form-label float-start'>Bill No</label>
+                            <input type='text' id='bill_no' class='form-control' name='bill_no' required>
+                        </div>
+                        <div class='mb-3'>
+                            <label for='date' class='form-label float-start'>Date</label>
+                            <input type='date' class='form-control' name='date' required>
+                        </div>
+                        
+                        <div class='mb-3'>
+                            <label for='amount' class='form-label float-start'>Amount (Rs)</label>
+                            <input type='number' onkeyup="price_in_words(this.value)" class='form-control' name='amount' required>
+                            <small id='words'></small>
+                            <script>
+                                function price_in_words(price) {
+                                    var sglDigit = ["Zero", "One", "Two", "Three", "Four", "Five", "Six", "Seven", "Eight", "Nine"],
+                                        dblDigit = ["Ten", "Eleven", "Twelve", "Thirteen", "Fourteen", "Fifteen", "Sixteen", "Seventeen", "Eighteen", "Nineteen"],
+                                        tensPlace = ["", "Ten", "Twenty", "Thirty", "Forty", "Fifty", "Sixty", "Seventy", "Eighty", "Ninety"],
+                                        handle_tens = function(dgt, prevDgt) {
+                                        return 0 == dgt ? "" : " " + (1 == dgt ? dblDigit[prevDgt] : tensPlace[dgt])
+                                        },
+                                        handle_utlc = function(dgt, nxtDgt, denom) {
+                                        return (0 != dgt && 1 != nxtDgt ? " " + sglDigit[dgt] : "") + (0 != nxtDgt || dgt > 0 ? " " + denom : "")
+                                        };
+
+                                    var str = "",
+                                        digitIdx = 0,
+                                        digit = 0,
+                                        nxtDigit = 0,
+                                        words = [];
+                                    price=price.split('.')[0]
+                                    if (price += "", isNaN(parseInt(price))) str = "";
+                                    else if (parseInt(price) > 0 && price.length <= 10) {
+                                        for (digitIdx = price.length - 1; digitIdx >= 0; digitIdx--) switch (digit = price[digitIdx] - 0, nxtDigit = digitIdx > 0 ? price[digitIdx - 1] - 0 : 0, price.length - digitIdx - 1) {
+                                        case 0:
+                                            words.push(handle_utlc(digit, nxtDigit, ""));
+                                            break;
+                                        case 1:
+                                            words.push(handle_tens(digit, price[digitIdx + 1]));
+                                            break;
+                                        case 2:
+                                            words.push(0 != digit ? " " + sglDigit[digit] + " Hundred" + (0 != price[digitIdx + 1] && 0 != price[digitIdx + 2] ? " and" : "") : "");
+                                            break;
+                                        case 3:
+                                            words.push(handle_utlc(digit, nxtDigit, "Thousand"));
+                                            break;
+                                        case 4:
+                                            words.push(handle_tens(digit, price[digitIdx + 1]));
+                                            break;
+                                        case 5:
+                                            words.push(handle_utlc(digit, nxtDigit, "Lakh"));
+                                            break;
+                                        case 6:
+                                            words.push(handle_tens(digit, price[digitIdx + 1]));
+                                            break;
+                                        case 7:
+                                            words.push(handle_utlc(digit, nxtDigit, "Crore"));
+                                            break;
+                                        case 8:
+                                            words.push(handle_tens(digit, price[digitIdx + 1]));
+                                            break;
+                                        case 9:
+                                            words.push(0 != digit ? " " + sglDigit[digit] + " Hundred" + (0 != price[digitIdx + 1] || 0 != price[digitIdx + 2] ? " and" : " Crore") : "")
+                                        }
+                                        str = words.reverse().join("")
+                                    } else str = "";
+                                document.getElementById('words').textContent =str
+                                }
+                            </script>
+                        </div>
+                        <input type="text" id='transaction' name='transaction' value='' hidden>
+                        <div class='mb-3'>
+                            <label for='remark' class='form-label float-start'>Remark</label>
+                            <input type='text' class='form-control' name='remark' required>
+                        </div>
+                        <button type='submit' id='submitBtn' class='btn btn-success px-5' onclick="return confirm('Confirm the data before submition. Sure to submit?')">Save</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="table-responsive mt-3">
+        <h5>Previous Transactions</h5>
+    <table id="table_id" class="table-light table table-striped table-bordered w-100">
+        <thead>
+            <tr>
+                <th>Bill No</th>
+                <th style='min-width:100px'>Date</th>
+                <th>Advance</th>
+                <th>Bill Amount</th>
+                <th>Balance</th>
+                <th style='min-width:150px'>Remark</th>
+                <th>Created On</th>
+            </tr>
+        </thead>
+        <tbody id='tBody'>
+            {% for transaction in transactions %}
+            <tr>
+                <td>{{transaction.bill_no}}</td>
+                <td>{{transaction.date|date:"d-m-Y"}}</td>
+                {% if transaction.advance == 0 %}
+                <td>-</td>
+                {% else %}
+                <td>{{transaction.advance}}</td>
+                {% endif %}
+                {% if transaction.bill_amount == 0 %}
+                <td>-</td>
+                {% else %}
+                <td>{{transaction.bill_amount}}</td>
+                {% endif %}
+                <td>{{transaction.balance}}</td>
+                <td>{{transaction.remark}}</td>
+                <td>{{transaction.created_on}}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    </div>
+</div>
+<style>
+    td a {
+        width: 100%;
+        display: block;
+    }
+    td a:hover {
+        font-weight:bold;
+    }
+</style>
+{% endblock body %} 
