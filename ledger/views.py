@@ -17,7 +17,7 @@ def save_transaction(request):
     main_ac=Staff.objects.get(id=1)
     bill_no=request.POST['bill_no']
     date=request.POST['date']
-    amount=int(request.POST['amount'])
+    amount=float(request.POST['amount'])
     transaction=request.POST['transaction']
     remark=request.POST['remark']
     if transaction=='advance':

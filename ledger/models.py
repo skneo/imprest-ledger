@@ -9,7 +9,7 @@ class Staff(models.Model):
     section = models.CharField(max_length=64)
     phone = models.BigIntegerField()
     remark = models.CharField(max_length=150, blank=True)
-    balance = models.IntegerField(default=0)
+    balance = models.FloatField(default=0)
     trash = models.BooleanField(default=False)
     created_on= models.DateField(default=timezone.now)
     def __str__(self):
